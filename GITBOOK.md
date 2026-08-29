@@ -2,6 +2,11 @@
 
 The docs live in GitBook, not in a git repo. Everything needed to read/edit them
 programmatically is below, so no session has to rediscover it.
+## Hard rules
+
+**Agents NEVER merge GitBook change requests.** Every CR is created, verified
+inside the CR, and then left open for Seth to review and merge manually. This
+overrides any "it's verified, merge it" reasoning.
 
 ## Auth
 
@@ -67,7 +72,8 @@ FAQ, Tutorials, Support, 5.x variants).
    apply, so expect cosmetic export drift.
 4. One `update_page` change per call is the safe habit; up to 50 changes are
    allowed per batch but a single invalid change rejects the whole batch.
-5. Merge via `submit_or_merge_change_request`; GitBook 301s moved pages.
+5. `submit_or_merge_change_request` exists but is **off-limits for agents** — see
+   Hard rules above. File the CR, verify it, report the link, and stop.
 
 ## Release-notes page shape (Seth-approved)
 
