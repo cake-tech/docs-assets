@@ -62,11 +62,7 @@ FAQ, Tutorials, Support, 5.x variants).
 1. **Submit the fetched markdown VERBATIM**, keeping its leading `# Title` line;
    otherwise GitBook consumes the first heading as the page title and silently
    moves the slug (broke `install/android` once).
-2. **Relative internal links degrade to plain text on import** even though
-   working links export as `[X](parent/child)`. Re-submit same-space links as
-   `[X](/pages/<parent-slug>/<child-slug>)`, cross-space as full
-   `https://docs.cakewallet.com/...` URLs. The "Previous versions" list on
-   `release-notes` bit twice.
+2. **Relative internal links degrade to plain text on import** even though working links export as `[X](parent/child)`. Don't re-submit them as relative links. The `/pages/<parent>/<child>` form works for ordinary inline same-space links, but in bullet lists it came back as nested page-relation bullets (v6.4.4 pass) — the robust form for a list is the full published URL (`https://docs.cakewallet.com/...`). The "Previous versions" list on `release-notes` bit three times: twice as plain text, once as `/pages/` nesting. Always verify links inside the CR and fall back to full URLs.
 3. **Re-fetch inside the CR and diff before merging** — confirm title, slug and
    path are unchanged, not just the body. GitBook also normalizes markdown on
    apply, so expect cosmetic export drift.
@@ -74,6 +70,16 @@ FAQ, Tutorials, Support, 5.x variants).
    allowed per batch but a single invalid change rejects the whole batch.
 5. `submit_or_merge_change_request` exists but is **off-limits for agents** — see
    Hard rules above. File the CR, verify it, report the link, and stop.
+6. **Give every CR a unique, descriptive subject** — the release plus what it changes
+   in that space, e.g. `v6.5.0 cryptos: Robinhood Chain page, Bitcoin accounts, Zano
+   phase-out`. Never file several CRs under one generic name (Seth, 2026-10-14).
+   Rename via `PATCH /v1/spaces/:spaceId/change-requests/:crId` with `{"subject": "..."}`.
+7. **New pages:** `insert_page` change with `title`, `slug`, `document.markdown`, plus
+   `into` (parent page id; omit for root) and optional zero-based `at`. Worked first
+   time in the v6.5.0 pass (release-notes series page, Robinhood Chain, Charts).
+8. Converting every relative link on a re-submitted page to its full published URL
+   (`https://docs.cakewallet.com/<space-prefix>/<path>`) round-tripped exactly in the
+   v6.5.0 pass, bullet lists included (`cryptocurrencies`, `features` index).
 
 ## Release-notes page shape (Seth-approved)
 
