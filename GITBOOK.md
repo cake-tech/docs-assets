@@ -93,7 +93,7 @@ FAQ, Tutorials, Support, 5.x variants).
 8. **Give every CR a unique, descriptive subject** — the release plus what it changes
    in that space, e.g. `v6.5.0 cryptos: Robinhood Chain page, Bitcoin accounts, Zano
    phase-out`. Never file several CRs under one generic name (Seth, 2026-10-14).
-   Rename via `PATCH /v1/spaces/:spaceId/change-requests/:crId` with `{"subject": "..."}`.
+   Rename via `PATCH /v1/spaces/:spaceId/change-requests/:crId` with `{"subject": "..."}`. Subjects max 100 characters.
 9. **New pages:** `insert_page` change with `title`, `slug`, `document.markdown`, plus
    `into` (parent page id; omit for root) and optional zero-based `at`. Worked first
    time in the v6.5.0 pass (release-notes series page, Robinhood Chain, Charts).
@@ -101,6 +101,23 @@ FAQ, Tutorials, Support, 5.x variants).
     (see rule 2). Converting every relative link on a re-submitted page to its full
     published URL (`https://docs.cakewallet.com/<space-prefix>/<path>`) round-tripped
     exactly in the v6.5.0 pass, bullet lists included (`cryptocurrencies`, `features` index).
+
+11. **Metadata-only edits** — `update_page` with `description` and/or `tagTitle` and **no
+    `document`** changes only page metadata (no body re-submit, so no link risk). The API's
+    markdown export then shows the metadata as YAML frontmatter at the top; re-submitting that
+    markdown keeps it. Every page should have a 120–160 char `description` (meta description +
+    `llms.txt` summary); set `tagTitle` (≤45 chars) only where the visible title is too generic.
+    The latest-release-notes description names the current version — update it each release.
+12. **Public `.md` export ≠ API source.** `docs.cakewallet.com/<page>.md` renders `[url](url)`
+    links as `<url>` and wraps pages with an index line and an "Agent Instructions" block. Always
+    match edits against `GET .../content/path/<path>?format=markdown`, never the public export.
+13. **Link-only nav entries** (type `link`) can't become documents; insert a real page at the
+    same position (`into` + `at`) and `delete_page` the link entry in the same CR.
+14. **Dashboard customization edits are drafts until saved** — a toggle doesn't take effect
+    (or show in the API) until **Save** is clicked. The docs MCP server
+    (`https://docs.cakewallet.com/~gitbook/mcp`) needs Page actions on and saved; it is live
+    since 2026-10-14. Hiding "Powered by GitBook" (`trademark.enabled`) is silently ignored by
+    the API and has no dashboard toggle on this plan.
 
 ## Release-notes page shape (Seth-approved)
 
@@ -134,6 +151,18 @@ POST /v1/orgs/Ksgcu2spQyb8ZrFM3st6/sites/site_VMiJI/redirects
  "destination":{"kind":"site-page","siteSpaceId":"sitesp_ugha9","pageId":"<pageId>"},
  "permanent":true,"captureWildcard":false}
 ```
+
+**Bulk + draft workflow (v6.5.0 audit, 2026-10-14 — 47 redirects added, 7 made permanent):**
+`PUT /v1/orgs/:org/sites/:site/redirects` takes up to 500 ops. Send each with `"intent":"draft"`
+first (drafts are not live and do **not** show in `GET .../redirects`), check each with
+`GET .../redirect?source=<path>` (it resolves drafts and returns the final `target`), then send
+`{"source":..., "intent":"publish"}` for each. Destinations can be `{"kind":"path","spaceId","path"}`
+(resolved to a page server-side) or `{"kind":"external","url"}`. Exact sources win over wildcards.
+Wildcards: source `/features/5.x/*` + `"captureWildcard":true` + external URL ending in `/`
+(`https://docs.cakewallet.com/features/`) appends the suffix correctly. Point section roots at
+the no-slash URL (`/support`), since `/support/` adds a 302 hop. GitBook's broken-link findings
+(`GET .../findings`, `brokenLinkAction`) carry ready-made source→destination suggestions and are
+auto-closed when a live redirect covers the source.
 
 `pageId` is stable across a rename, so use the page's existing id. siteSpace ids:
 
