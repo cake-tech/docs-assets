@@ -94,6 +94,9 @@ FAQ, Tutorials, Support, 5.x variants).
    in that space, e.g. `v6.5.0 cryptos: Robinhood Chain page, Bitcoin accounts, Zano
    phase-out`. Never file several CRs under one generic name (Seth, 2026-10-14).
    Rename via `PATCH /v1/spaces/:spaceId/change-requests/:crId` with `{"subject": "..."}`. Subjects max 100 characters.
+   On `POST .../change-requests`, `description` must be a document object, not a string (a string
+   returns 422): `{"object":"document","data":{},"nodes":[{"object":"block","type":"paragraph","data":{},
+   "nodes":[{"object":"text","leaves":[{"object":"leaf","text":"...","marks":[]}]}]}]}`, one block per paragraph.
 9. **New pages:** `insert_page` change with `title`, `slug`, `document.markdown`, plus
    `into` (parent page id; omit for root) and optional zero-based `at`. Worked first
    time in the v6.5.0 pass (release-notes series page, Robinhood Chain, Charts).
